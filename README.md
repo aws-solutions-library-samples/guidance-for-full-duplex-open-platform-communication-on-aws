@@ -912,6 +912,6 @@ If the OPCDA component malfunctions the component can be restarted in two ways.
 
 ## Conclusion
 
-Congratulations, you hav now successfully created a OPCUA/da protocol unifier using AWS IOT Greengrass.
+Congratulations, you have now successfully created a OPCUA/DA protocol unifier/convertor using AWS IOT Greengrass.
 
-Play around with the components and add new components to the deployment to unify many other IIOT communication protocols.
+Play around with the components and add new components to the deployment to unify many other IIOT communication protocols such as Modbus, serial etc.
