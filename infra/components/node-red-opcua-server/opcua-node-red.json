@@ -1,0 +1,359 @@
+[
+    {
+        "id": "0dd182a550b9b67a",
+        "type": "tab",
+        "label": "IIoT OPC UA Flex Server",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "7095e41b964fe5da",
+        "type": "OPCUA-IIoT-Server-Command",
+        "z": "0dd182a550b9b67a",
+        "commandtype": "restart",
+        "nodeId": "",
+        "name": "warm restart with defaults",
+        "x": 370,
+        "y": 140,
+        "wires": [
+            [
+                "7cc73096bff76b96"
+            ]
+        ]
+    },
+    {
+        "id": "3417d025d53f8721",
+        "type": "OPCUA-IIoT-Inject",
+        "z": "0dd182a550b9b67a",
+        "injectType": "inject",
+        "payload": "",
+        "payloadType": "date",
+        "topic": "",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "startDelay": "",
+        "name": "",
+        "addressSpaceItems": [],
+        "x": 140,
+        "y": 140,
+        "wires": [
+            [
+                "7095e41b964fe5da"
+            ]
+        ]
+    },
+    {
+        "id": "4e8a4aa942d667a0",
+        "type": "debug",
+        "z": "0dd182a550b9b67a",
+        "name": "",
+        "active": true,
+        "console": "false",
+        "complete": "false",
+        "x": 810,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "7cc73096bff76b96",
+        "type": "OPCUA-IIoT-Flex-Server",
+        "z": "0dd182a550b9b67a",
+        "port": "55380",
+        "endpoint": "UA/NodeRed",
+        "acceptExternalCommands": true,
+        "maxAllowedSessionNumber": "",
+        "maxConnectionsPerEndpoint": "",
+        "maxAllowedSubscriptionNumber": "",
+        "alternateHostname": "",
+        "name": "OPCUA Server",
+        "showStatusActivities": true,
+        "showErrors": true,
+        "allowAnonymous": true,
+        "individualCerts": false,
+        "isAuditing": false,
+        "serverDiscovery": true,
+        "users": [],
+        "xmlsets": [],
+        "publicCertificateFile": "",
+        "privateCertificateFile": "",
+        "registerServerMethod": "1",
+        "discoveryServerEndpointUrl": "opc.tcp://localhost:55380/UA/NodeRed",
+        "capabilitiesForMDNS": "",
+        "maxNodesPerRead": "",
+        "maxNodesPerBrowse": "",
+        "delayToClose": "",
+        "addressSpaceScript": "function constructAlarmAddressSpace(server, addressSpace, eventObjects, done) {\n    // server = the created node-opcua server\n    // addressSpace = script placeholder\n    // eventObjects = to hold event variables in memory from this script\n\n    // internal global sandbox objects are \n    // node = node of the flex server, \n    // coreServer = core iiot server object for debug and access to nodeOPCUA,\n    // and scriptObjects to hold variables and functions\n    // const opcua = coreServer.core.nodeOPCUA\n\n    const LocalizedText = opcua.LocalizedText\n    const namespace = addressSpace.getOwnNamespace()\n\n    coreServer.internalDebugLog('init dynamic address space');\n\n    var flexServerInternals = this;     \n\n    \n    \n\n        this.sandboxFlowContext.set(\"turbineStatus\", false);   \n        this.sandboxFlowContext.set(\"turbineSpeed\", 250); \n        node.warn(\"global variable turbineStatus initialized \");       \n    \n    \n\n    // OPCUA name spaces\n    let anyCompany = namespace.addObject({\n        browseName: 'AnyCompany',\n        description: 'The Object representing AnyCompany Wind Farms',\n        organizedBy: addressSpace.rootFolder.objects,\n        notifierOf: addressSpace.rootFolder.objects.server\n    })\n\n    namespace.addVariable({\n        browseName: 'TurbineStatus',\n        nodeId: 'ns=1;s=TurbineStatus',\n        displayName: [\n            new LocalizedText({ text: 'Turbine Status', locale: 'en-US' }),\n\n        ],\n        description: 'Turbine status (start/ stop)',\n        propertyOf: anyCompany,\n        dataType: 'Boolean',\n        eventSourceOf: anyCompany,\n        value: {\n            get: function () {\n                return new opcua.Variant({\n                    dataType: 'Boolean',\n                    value: flexServerInternals.sandboxFlowContext.get(\"turbineStatus\")\n                })\n            },\n            set: function (variant) {\n                node.warn(\"Status setter: \" + variant.value)\n                flexServerInternals.sandboxFlowContext.set(\"turbineStatus\", variant.value);\n                return opcua.StatusCodes.Good\n            }\n        }\n    })\n\n    namespace.addVariable({\n        browseName: 'TurbineSpeed',\n        nodeId: 'ns=1;s=TurbineSpeed',\n        displayName: [\n            new LocalizedText({ text: 'Turbine Speed', locale: 'en-US' }),\n\n        ],\n        description: 'Turbine speed used for simple test ',\n        propertyOf: anyCompany,\n        dataType: 'Double',\n        eventSourceOf: anyCompany,\n        value: {\n            get: function () {\n                return new opcua.Variant({\n                    dataType: 'Double',\n                    value: flexServerInternals.sandboxFlowContext.get(\"turbineSpeed\")\n                })\n            },\n            set: function (variant) {              \n                node.warn(\"Speed setter: \" + variant.value)\n                flexServerInternals.sandboxFlowContext.set(\"turbineSpeed\", variant.value);\n                return opcua.StatusCodes.Good\n            }\n        }\n    })\n\n\n    done()\n}",
+        "x": 600,
+        "y": 140,
+        "wires": [
+            [
+                "4e8a4aa942d667a0"
+            ]
+        ]
+    },
+    {
+        "id": "1080d304f58986a3",
+        "type": "catch",
+        "z": "0dd182a550b9b67a",
+        "name": "",
+        "scope": null,
+        "x": 140,
+        "y": 80,
+        "wires": [
+            [
+                "2a8bd8b4cb10e8f8"
+            ]
+        ]
+    },
+    {
+        "id": "2a8bd8b4cb10e8f8",
+        "type": "debug",
+        "z": "0dd182a550b9b67a",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 290,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "52610c484b1a8504",
+        "type": "OPCUA-IIoT-Inject",
+        "z": "0dd182a550b9b67a",
+        "injectType": "write",
+        "payload": "",
+        "payloadType": "date",
+        "topic": "",
+        "repeat": "20",
+        "crontab": "",
+        "once": false,
+        "startDelay": "",
+        "name": "Speed Randomizer",
+        "addressSpaceItems": [
+            {
+                "name": "TurbineSpeed",
+                "nodeId": "ns=1;s=TurbineSpeed",
+                "datatypeName": "Double"
+            }
+        ],
+        "x": 180,
+        "y": 220,
+        "wires": [
+            [
+                "fb303cd847a05676"
+            ]
+        ]
+    },
+    {
+        "id": "bb02164f9636d02b",
+        "type": "OPCUA-IIoT-Write",
+        "z": "0dd182a550b9b67a",
+        "connector": "97a2be43ba425bc6",
+        "name": "",
+        "justValue": true,
+        "showStatusActivities": true,
+        "showErrors": true,
+        "x": 650,
+        "y": 220,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "fb303cd847a05676",
+        "type": "function",
+        "z": "0dd182a550b9b67a",
+        "name": "Speed Randomiser",
+        "func": "var speed = Math.round(Math.random() * 1000);\nif(flow.get(\"turbineStatus\"))\n{msg.payload.value = speed;}\nelse{msg.payload.value = 0;}\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 430,
+        "y": 220,
+        "wires": [
+            [
+                "bb02164f9636d02b"
+            ]
+        ]
+    },
+    {
+        "id": "13d5e37bf3152021",
+        "type": "OPCUA-IIoT-Write",
+        "z": "0dd182a550b9b67a",
+        "connector": "97a2be43ba425bc6",
+        "name": "",
+        "justValue": true,
+        "showStatusActivities": false,
+        "showErrors": false,
+        "x": 410,
+        "y": 320,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "d09acdfe8ddcd32d",
+        "type": "OPCUA-IIoT-Inject",
+        "z": "0dd182a550b9b67a",
+        "injectType": "write",
+        "payload": "true",
+        "payloadType": "bool",
+        "topic": "Turbine Start",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "startDelay": "",
+        "name": "",
+        "addressSpaceItems": [
+            {
+                "name": "TurbineStatus",
+                "nodeId": "ns=1;s=TurbineStatus",
+                "datatypeName": "Boolean"
+            }
+        ],
+        "x": 160,
+        "y": 300,
+        "wires": [
+            [
+                "13d5e37bf3152021"
+            ]
+        ]
+    },
+    {
+        "id": "bac72cb8d35df590",
+        "type": "OPCUA-IIoT-Inject",
+        "z": "0dd182a550b9b67a",
+        "injectType": "write",
+        "payload": "false",
+        "payloadType": "bool",
+        "topic": "Turbine Stop",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "startDelay": "",
+        "name": "",
+        "addressSpaceItems": [
+            {
+                "name": "TurbineStatus",
+                "nodeId": "ns=1;s=TurbineStatus",
+                "datatypeName": "Boolean"
+            }
+        ],
+        "x": 170,
+        "y": 360,
+        "wires": [
+            [
+                "13d5e37bf3152021"
+            ]
+        ]
+    },
+    {
+        "id": "9266de5902a42786",
+        "type": "OPCUA-IIoT-Read",
+        "z": "0dd182a550b9b67a",
+        "attributeId": "0",
+        "maxAge": 1,
+        "depth": 1,
+        "connector": "97a2be43ba425bc6",
+        "name": "",
+        "justValue": true,
+        "showStatusActivities": true,
+        "showErrors": true,
+        "parseStrings": true,
+        "historyDays": 1,
+        "x": 330,
+        "y": 440,
+        "wires": [
+            [
+                "9996a5b91ff337ca"
+            ]
+        ]
+    },
+    {
+        "id": "a37c05b68050359e",
+        "type": "OPCUA-IIoT-Inject",
+        "z": "0dd182a550b9b67a",
+        "injectType": "read",
+        "payload": "",
+        "payloadType": "date",
+        "topic": "",
+        "repeat": "5",
+        "crontab": "",
+        "once": false,
+        "startDelay": "1",
+        "name": "Read Nodes",
+        "addressSpaceItems": [
+            {
+                "name": "TurbineStatus",
+                "nodeId": "ns=1;s=TurbineStatus",
+                "datatypeName": "Boolean"
+            },
+            {
+                "name": "TurbineSpeed",
+                "nodeId": "ns=1;s=TurbineSpeed",
+                "datatypeName": "Double"
+            }
+        ],
+        "x": 160,
+        "y": 440,
+        "wires": [
+            [
+                "9266de5902a42786"
+            ]
+        ]
+    },
+    {
+        "id": "9996a5b91ff337ca",
+        "type": "function",
+        "z": "0dd182a550b9b67a",
+        "name": "Turbine Status Finder",
+        "func": "var turbineStatus = msg.payload.value[0].value\n// set the turbine status in flow context\nflow.set(\"turbineStatus\", turbineStatus);\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 540,
+        "y": 440,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "97a2be43ba425bc6",
+        "type": "OPCUA-IIoT-Connector",
+        "discoveryUrl": "opc.tcp://localhost:55380/UA/NodeRed",
+        "endpoint": "opc.tcp://localhost:55380/UA/NodeRed",
+        "endpointMustExist": false,
+        "keepSessionAlive": true,
+        "loginEnabled": false,
+        "name": "OPCUA Server",
+        "showErrors": false,
+        "securityPolicy": "None",
+        "securityMode": "None",
+        "individualCerts": false,
+        "publicCertificateFile": "",
+        "privateKeyFile": "",
+        "defaultSecureTokenLifetime": "",
+        "autoSelectRightEndpoint": false,
+        "strategyMaxRetry": "",
+        "strategyInitialDelay": "",
+        "strategyMaxDelay": "",
+        "strategyRandomisationFactor": "",
+        "requestedSessionTimeout": "",
+        "connectionStartDelay": "",
+        "reconnectDelay": "",
+        "maxBadSessionRequests": "10"
+    }
+]

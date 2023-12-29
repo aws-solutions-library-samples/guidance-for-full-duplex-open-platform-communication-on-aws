@@ -1,0 +1,33 @@
+---
+RecipeFormatVersion: "2020-01-25"
+ComponentName: "{COMPONENT_NAME}"
+ComponentVersion: "{COMPONENT_VERSION}"
+ComponentDescription: "Python based OPCDA Client component."
+ComponentPublisher: "{COMPONENT_AUTHOR}"
+ComponentConfiguration:
+  DefaultConfiguration:
+    ShadowName: "opc"
+    accessControl:      
+      aws.greengrass.ShadowManager: # to interact with core device shadow
+        com.example.Opcda:shadow:1:
+            policyDescription: 'Allows access to GG core device named shadow'
+            operations: # only allow required access in production
+              - aws.greengrass#GetThingShadow
+              - aws.greengrass#UpdateThingShadow                                     
+            resources:
+              - "$aws/things/{iot:thingName}/shadow/name/opc"           
+      aws.greengrass.ipc.pubsub:  # to receive subscriptions callbacks from core device
+        com.example.Opcda:pubsub:2:
+          policyDescription: 'Allows subscription to GG core device named shadow'
+          operations:
+            - 'aws.greengrass#SubscribeToTopic' # gets callbacks upon shadow changes      
+          resources:
+            - $aws/things/{iot:thingName}/shadow/name/opc/update/delta   # delta updates for core device shadow  
+Manifests:
+  - Platform:
+      os: windows
+    Artifacts:
+      - URI: "s3://BUCKET_NAME/COMPONENT_NAME/COMPONENT_VERSION/com.example.Opcda.zip"
+        Unarchive: ZIP
+    Lifecycle:
+      Run: "python -u {artifacts:decompressedPath}/com.example.Opcda/main.py {configuration:/ShadowName}"

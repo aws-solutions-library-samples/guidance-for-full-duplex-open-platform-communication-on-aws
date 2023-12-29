@@ -1,0 +1,16 @@
+{
+  "component": {
+    "com.example.Opcua": {
+      "author": "Tamil Jayakumar",
+      "version": "NEXT_PATCH",
+      "build": {
+        "build_system": "maven"
+      },
+      "publish": {
+        "bucket": "greengrass-artifacts",
+        "region": "us-west-2"
+      }
+    }
+  },
+  "gdk_version": "1.0.0"
+}

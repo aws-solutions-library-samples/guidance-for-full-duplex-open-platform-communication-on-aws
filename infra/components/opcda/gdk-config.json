@@ -1,0 +1,19 @@
+{
+  "component": {
+    "com.example.Opcda": {
+      "author": "Tamil Jayakumar",
+      "version": "NEXT_PATCH",
+      "build": {
+        "build_system": "zip",
+        "options": {
+          "zip_name": ""
+        }
+      },
+      "publish": {
+        "bucket": "greengrass-artifacts",
+        "region": "us-west-2"
+      }
+    }
+  },
+  "gdk_version": "1.3.0"
+}

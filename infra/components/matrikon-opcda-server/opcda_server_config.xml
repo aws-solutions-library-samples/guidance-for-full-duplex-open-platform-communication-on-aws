@@ -1,0 +1,27 @@
+<!--
+// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// SPDX-License-Identifier: MIT-0
+-->
+
+
+<Matrikon.OPC.Simulation>
+    <CSimRootDevLink name="" description="Sim Server Root" />
+    <PSTAliasGroup>
+        <PSTAliasGroup name="TurbineSensors">
+            <PSTAlias name="Drift" itemPath="Random.Boolean" type="1" dataType="11"
+                updateRate="20000">
+                <Scaling enabled="-1" type="0" />
+                <Events enabled="0" source="Alias" severity="1" trigger="0" timestamp="0" />
+            </PSTAlias>
+            <PSTAlias name="Flag" itemPath="Bucket Brigade.Int4" type="1">
+                <Scaling enabled="0" type="0" />
+                <Events enabled="0" source="Alias" severity="1" trigger="0" timestamp="0" />
+            </PSTAlias>
+            <PSTAlias name="Pressure" itemPath="Random.Int8" type="1" dataType="3"
+                updateRate="20000">
+                <Scaling enabled="-1" type="0" />
+                <Events enabled="0" source="Alias" severity="1" trigger="0" timestamp="0" />
+            </PSTAlias>
+        </PSTAliasGroup>
+    </PSTAliasGroup>
+</Matrikon.OPC.Simulation>
