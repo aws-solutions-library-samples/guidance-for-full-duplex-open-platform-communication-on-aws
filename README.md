@@ -868,7 +868,7 @@ gdk component publish
 You can verify the components deployment status from AWS IoT Core Service page and heading to Greengrass devices  -> Components and verify if the list contains `com.example.Opcua` &
 `com.example.Opcda` under the `My Components` tab.
 
-The Public Component list can be found under the `Public Components` tab. PLease not this list is the complete list of **all** public components & not just the ones we need for this project.
+The Public Component list can be found under the `Public Components` tab. Please note this list is the complete list of **all** public components & not just the ones we need for this project.
 
 ## Running the Guidance
 
