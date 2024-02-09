@@ -29,7 +29,7 @@ This guidance can also be extended to open up opportunities for protocol unifica
 
 ### Cost
 
-You are responsible for the cost of the AWS services used while running this Guidance. As of January 2023, the cost for running this Guidance with the default settings in the Oregon (us-west-2) is approximately $69 per month. The main cost driver is the EC2 instance that acts as an AWS IoT GreenGrass Core device. We use a T3 Large instance to run Windows 2022 Server edition, that needs a minimum of 8GB of RAM for optimal performance. The cost can be further brought down by following the [Next Steps](#next-steps) guide.
+You are responsible for the cost of the AWS services used while running this Guidance. As of January 2024, the cost for running this Guidance with the default settings in the Oregon (us-west-2) is approximately $69 per month. The main cost driver is the EC2 instance that acts as an AWS IoT GreenGrass Core device. We use a T3 Large instance to run Windows 2022 Server edition, that needs a minimum of 8GB of RAM for optimal performance. The cost can be further brought down by following the [Next Steps](#next-steps) guide.
 
 ---
 
