@@ -1,4 +1,23 @@
-# Full Duplex OPC UA/DA Unifier for Industrial IOT
+# Guidance for Full Duplex Open Platform Communication on AWS
+
+---
+
+## Table of Content
+
+List the top-level sections of the README template, along with a hyperlink to the specific section.
+
+1. [Overview](#overview)
+    - [Cost](#cost)
+2. [Prerequisites](#prerequisites)
+    - [Operating System](#operating-system)
+3. [Deployment Steps](#deployment-steps)
+4. [Deployment Validation](#deployment-validation)
+5. [Running the Guidance](#running-the-guidance)
+6. [Next Steps](#next-steps)
+7. [Cleanup](#clean-up)
+8. [Notices](#notices)
+
+## Overview
 
 This sample shows how to use [AWS Greengrass V2 custom components](https://docs.aws.amazon.com/greengrass/v2/developerguide/develop-greengrass-components.html) to connect to an [OPCUA/DA](https://www.opc7.com/opc-ua-vs-da/) server & bi-directionally sync industrial IOT data between AWS cloud and edge using [AWS IOT Core](https://docs.aws.amazon.com/iot/latest/developerguide/what-is-aws-iot.html).
 
@@ -7,6 +26,10 @@ OPC UA (Unified Architecture) and OPC DA (Data Access) are industrial automation
 The custom AWS Greengrass V2 components provide guidance to read, write OPCUA nodes and OPCDA tags. Additionally, they show subscribing to data changes for OPCUA nodes. We then use [AWS IoT Core named shadow service](https://docs.aws.amazon.com/iot/latest/developerguide/iot-device-shadows.html) to sync OPC UA/DA server data to cloud & set desired control data in the shadows, which then gets written to the respective OPC server; thus enabling a full duplex data exchange between cloud & edge via [MQTT](https://mqtt.org/).
 
 This guidance can also be extended to open up opportunities for protocol unification, conversions, modifications & transfer OPC data over MQTT. Users may use any number of additional custom AWS Greengrass V2 components to integrate other industrial communication protocols such as [modbus](https://openautomationsoftware.com/blog/what-is-modbus/), MQTT, serial etc. and sync to the cloud.
+
+### Cost
+
+You are responsible for the cost of the AWS services used while running this Guidance. As of January 2023, the cost for running this Guidance with the default settings in the Oregon (us-west-2) is approximately $69 per month. The main cost driver is the EC2 instance that acts as an AWS IoT GreenGrass Core device. We use a T3 Large instance to run Windows 2022 Server edition, that needs a minimum of 8GB of RAM for optimal performance. The cost can be further brought down by following the [Next Steps](#next-steps) guide.
 
 ---
 
@@ -20,7 +43,9 @@ The published solution guidance can be found here - <https://aws.amazon.com/solu
 
 ---
 
-## Dev machine Setup
+## Prerequisites
+
+### Operating System
 
 Lets setup the dev machine. Please note that this guide was tested on a MacBook 💻 but we try to provide instructions for Windows as well.
 
@@ -60,7 +85,7 @@ AWS CLI can be installed from here - <https://docs.aws.amazon.com/cli/latest/use
 
 ---
 
-## Repo Setup
+## Deployment Steps
 
 Let's now setup the repo on the local dev machine to deploy the AWS CDK infra assets and AWS Greengrass Components to a desired AWS Account.
 
@@ -81,12 +106,12 @@ With AWS CLI, we can now setup AWS Account credentials on your dev machine. Foll
 
 In the next steps we will be creating an EC2 instance to act as our Greengrass Core device which needs an EC2 key pair to establish RDP connectivity to the Ec2 instance. We use AWS Management Console to RDP into the EC2 instance using [AWS Fleet Manager](https://docs.aws.amazon.com/systems-manager/latest/userguide/fleet.html). Follow the instructions below to create the key value pair.
 
-* Access the management console of your AWS account & search for EC2 service or click [this link](https://us-west-2.console.aws.amazon.com/ec2/home?region=us-west-2#CreateKeyPair:) to access the key pair creation page directly
-* in the EC2 service page, expand the menu icon on the left side of the scree and click on `Key Pairs` under `Network & Security` section
-* Click on `Create key pair` button
-* ensure the key pair name is `node-red-windows`. **YOU MUST** set the key value pair name as `node-red-windows`. This name is hardcoded in our CDK stack to allow access to the EC2 instance via RDP from management console.
-* retain all the default options & click `create key pair` button
-* download the key value pair & store it safe in your dev machine as we will be using this later to RDP to our Windows EC2 instance.
+- Access the management console of your AWS account & search for EC2 service or click [this link](https://us-west-2.console.aws.amazon.com/ec2/home?region=us-west-2#CreateKeyPair:) to access the key pair creation page directly
+- in the EC2 service page, expand the menu icon on the left side of the scree and click on `Key Pairs` under `Network & Security` section
+- Click on `Create key pair` button
+- ensure the key pair name is `node-red-windows`. **YOU MUST** set the key value pair name as `node-red-windows`. This name is hardcoded in our CDK stack to allow access to the EC2 instance via RDP from management console.
+- retain all the default options & click `create key pair` button
+- download the key value pair & store it safe in your dev machine as we will be using this later to RDP to our Windows EC2 instance.
 
 ### CDK Bootstrap
 
@@ -109,10 +134,10 @@ cdk bootstrap aws://ACCOUNT-NUMBER-1/REGION-1
 
 This will setup the following AWS Cloud resources in the target AWS Account for which you had configured the credentials in the [previous step](#aws-account-credentials).
 
-* A 64 bit sWindows 2022 Server edition EC2 instance with SSM access
-* An IAM role to assume to configure the EC2 instance as an AWS Greengrass core device.
-* An AWS S3 bucket to publish custom AWS Greengrass Components
-* Set of AWS IAM roles, IoT roles, security certificate policies to enable connectivity between the EC2 instance & AWS Cloud.
+- A 64 bit sWindows 2022 Server edition EC2 instance with SSM access
+- An IAM role to assume to configure the EC2 instance as an AWS Greengrass core device.
+- An AWS S3 bucket to publish custom AWS Greengrass Components
+- Set of AWS IAM roles, IoT roles, security certificate policies to enable connectivity between the EC2 instance & AWS Cloud.
 
 Execute the following command from `infra` folder path and type 'Y' when prompted to setup AWS Cloud resources -
 
@@ -180,7 +205,7 @@ Let us now configure the Ec2 instance as the Greengrass Core Device.
 
 The first step involves creating a dedicated user in the Ec2 instance which we will name as `ggc_user`. This `ggc_user` will be used by the Greengrass Core service to establish trust with the AWS Cloud,  negotiate session credentials, establish MQTT & HTTPS connection with the AWS Account endpoint. we have completed the AWS cloud side setup by setting up AWS IoT thing policy, IAM roles & other necessary configurations while deployed the CDK stacks in the previous steps.
 
-* To Create a windows use enter the following commands in the cmd terminal in the EC2 instance.
+- To Create a windows use enter the following commands in the cmd terminal in the EC2 instance.
 
 ```cmd
 # replace the password with a unique password & write the password down in a safe location
@@ -197,8 +222,8 @@ Get-CimInstance -Query "SELECT * from Win32_UserAccount WHERE name = 'ggc_user'"
 
 Now let's save the password for the `ggc_user` in the [PsExec utility](https://docs.microsoft.com/en-us/sysinternals/downloads/psexec) so the AWS Greengrass service can assume the user `ggc_user` we created to connect to AWS Cloud.
 
-* Download and install the [PsExec utility](https://docs.microsoft.com/en-us/sysinternals/downloads/psexec) from Microsoft on the device. Download & extract
-* open the CMD terminal in the path where the `PSTools` folder was extracted and type the following command
+- Download and install the [PsExec utility](https://docs.microsoft.com/en-us/sysinternals/downloads/psexec) from Microsoft on the device. Download & extract
+- open the CMD terminal in the path where the `PSTools` folder was extracted and type the following command
 
 ```cmd
 # replace password with the password you had written down 
@@ -209,7 +234,7 @@ CMDKEY: Credential added successfully.
 cmd exited on EC2XXX-XXXXX with error code 0.`
 ```
 
-* If the PsExec License Agreement opens, choose Accept to agree to the license and run the command.
+- If the PsExec License Agreement opens, choose Accept to agree to the license and run the command.
 
 ### Get Credentials
 
@@ -239,6 +264,8 @@ Default output format [None]: json
 
 aws configure set aws_session_token <SESSION_TOKEN>
 ```
+
+The file under `C:\creds.txt` will contain the `aws_access_key_id`, `aws_secret_access_key` & the `aws_session_token` that needs to be used in the step above.
 
 Verify if you have configured the AWS credentials correctly by opening a new CMD window and enter the following command.
 
@@ -278,18 +305,18 @@ The timestamp will expire on 2031-11-09.
 
 ```
 
-* unzip the `zip` file under `C:\GreengrassInstaller` and run the following command
+- unzip the `zip` file under `C:\GreengrassInstaller` and run the following command
 
 Follow a detailed instructions on the installation here - <https://docs.aws.amazon.com/greengrass/v2/developerguide/quick-installation.html#run-greengrass-core-v2-installer>
 
 Note that we already have all the roles, alias and default user created during CDK deploy phase. Please ensure to make the appropriate updates to the commands below where -
 
-* region -> `us-west-2` ; you can change it to a region of choice
-* MyGreengrassCore -> NodeRedCore  ; you can change it to a value of choice
-* MyGreengrassCoreGroup -> OPCGroup  ; you can change it to a value of choice
-* GreengrassV2IoTThingPolicy - GreengrassIoTPolicy_XXXXX from the CDK output text
-* GreengrassV2TokenExchangeRole - NodeRedTokenExchangeRole
-* GreengrassCoreTokenExchangeRoleAlias - GreengrassV2TokenExchangeRoleAlias_XXXX  from the CDK output text
+- region -> `us-west-2` ; you can change it to a region of choice
+- MyGreengrassCore -> NodeRedCore  ; you can change it to a value of choice
+- MyGreengrassCoreGroup -> OPCGroup  ; you can change it to a value of choice
+- GreengrassV2IoTThingPolicy - GreengrassIoTPolicy_XXXXX from the CDK output text
+- GreengrassV2TokenExchangeRole - NodeRedTokenExchangeRole
+- GreengrassCoreTokenExchangeRoleAlias - GreengrassV2TokenExchangeRoleAlias_XXXX  from the CDK output text
 
 ```cmd
 java -Droot="C:\greengrass\v2" "-Dlog.store=FILE" ^
@@ -466,7 +493,7 @@ Noe we can create a deployment package from the AWS management console to deploy
 
 #### Public Components Deployment
 
-We will first deploy two [AWS public components](https://docs.aws.amazon.com/greengrass/v2/developerguide/public-components.html) which is [Greengrass CLI](https://docs.aws.amazon.com/greengrass/v2/developerguide/greengrass-cli-component.html) & the [Greengrass nucleus](https://docs.aws.amazon.com/greengrass/v2/developerguide/greengrass-nucleus-component.html) component
+We will first deploy three [AWS public components](https://docs.aws.amazon.com/greengrass/v2/developerguide/public-components.html) which is [Greengrass CLI](https://docs.aws.amazon.com/greengrass/v2/developerguide/greengrass-cli-component.html), the [Greengrass nucleus](https://docs.aws.amazon.com/greengrass/v2/developerguide/greengrass-nucleus-component.html) & the [Shadow Manager](https://docs.aws.amazon.com/greengrass/v2/developerguide/shadow-manager-component.html) components.
 
 From the management console, under AWS IoT Core -> Greengrass Devices -> Deployments -> Create Deployment
 
@@ -520,10 +547,12 @@ The Greengrass cli is installed in `C:\greengrass\v2\bin` and can be accessed in
 
 ```cmd
 # list all installed components 
-C:\greengrass\v2\bin>greengrass-cli component list
+
+cd C:\greengrass\v2\bin 
+greengrass-cli component list
 
 # response is 
-C:\greengrass\v2\bin>greengrass-cli component list
+C:\greengrass\v2\bin> greengrass-cli component list
 Components currently running in Greengrass:
 Component Name: DeploymentService
     Version: 0.0.0
@@ -554,8 +583,6 @@ Component Name: UpdateSystemPolicyService
     State: RUNNING
     Configuration: null
 ```
-
-Note how the configuration for the `aws.greengrass.Nucleus` has the `interpolateComponentConfiguration` set to `true`
 
 #### OPCUA Custom Component Deployment
 
@@ -605,7 +632,7 @@ The custom OPCUA component is now able to listen for node data changes in the OP
   "state": {
     "desired": {
       "opcua": {
-         "TurbineStatus": false
+         "TurbineStatus": true
       }
     },
     "reported": {
@@ -618,7 +645,7 @@ The custom OPCUA component is now able to listen for node data changes in the OP
 }
 ```
 
-This will set the OPCUA `TurbineStatus` to `true` & random `TurbineSpeed` data will flow in. You ma also observe the `TurbineSpeed` data in the RDP UI on the CMD prompt that runs the `node-red` process.  
+This will set the OPCUA `TurbineStatus` to `true` & random `TurbineSpeed` data will flow in. You may also observe the `TurbineSpeed` data in the RDP UI on the CMD prompt that runs the `node-red` process.  
 
 The response will now resemble the following data
 
@@ -669,9 +696,9 @@ Get the python 3.7 32 bit from the link below -
 
 Ensure to select the following options  in the setup page
 
-* install launcher for all users
-* add Python 3.7 to path  
-* customize installation
+- install launcher for all users
+- add Python 3.7 to path  
+- customize installation
 
 > ensure to follow the selections exactly as shown
 
@@ -797,6 +824,10 @@ The [OPCDA component in /infra/components/opcda/](/infra/components/opcda/) is w
 
 In your developer machine cd into the `/infra/components/opcda/` folder and enter the following commands
 
+Let's verify the gdk-config file in `/infra/components/opcda/gdk-config.json` and make sure we have the right region selected. Note, this region must be same as the region where the CDK deployment was made & where the Greengrass Core device was registered.
+
+Now in a terminal window `cd` into the /opcda folder
+
 ```cmd
 cd /infra/components/opcda/
 
@@ -831,6 +862,15 @@ gdk component publish
 [2023-12-19 13:00:57] INFO - Creating a new greengrass component com.example.Opcda-1.0.0.
 [2023-12-19 13:00:57] INFO - Created private version '1.0.0' of the component 'com.example.Opcda' in the account.
 ```
+
+## Deployment Validation
+
+You can verify the components deployment status from AWS IoT Core Service page and heading to Greengrass devices  -> Components and verify if the list contains `com.example.Opcua` &
+`com.example.Opcda` under the `My Components` tab.
+
+The Public Component list can be found under the `Public Components` tab. PLease not this list is the complete list of **all** public components & not just the ones we need for this project.
+
+## Running the Guidance
 
 ### Revise existing Deployment
 
@@ -915,3 +955,32 @@ If the OPCDA component malfunctions the component can be restarted in two ways.
 Congratulations, you have now successfully created a OPCUA/DA protocol unifier/convertor using AWS IOT Greengrass.
 
 Play around with the components and add new components to the deployment to unify many other IIOT communication protocols such as Modbus, serial etc.
+
+---
+
+## Next Steps
+
+1. Build & deploy a custom component to convert other standard IoT protocols such as Modbus via the [node-red-contrib-modbus](https://flows.nodered.org/node/node-red-contrib-modbus) package.
+2. Introduce other shadow variables to allow data to be exchanged between the two custom components via the [MQTT Bridge](https://docs.aws.amazon.com/greengrass/v2/developerguide/mqtt-bridge-component.html) component.
+3. Deploy the [IoT SiteWise OPC-UA data source simulator](https://docs.aws.amazon.com/greengrass/v2/developerguide/iotsitewise-opcua-data-source-simulator-component.html) public component to act as the IoT SiteWise OPC-UA data source simulator component. This starts a local OPC-UA server that generates sample data that can be read by the opcua custom component.
+4. Deploy the [IoT SiteWise OPC-UA collector](https://docs.aws.amazon.com/greengrass/v2/developerguide/iotsitewise-opcua-collector-component.html) component that enables AWS IoT SiteWise gateways to collect data from local OPC-UA servers such as NodeRED.
+5. Deploy the [IoT SiteWise publisher component](https://docs.aws.amazon.com/greengrass/v2/developerguide/iotsitewise-publisher-component.html) that enables AWS IoT SiteWise gateways to export data from the edge to the AWS Cloud.
+6. To save cost, remember to shut down the EC2 instance when not in use.
+
+---
+
+## Clean up
+
+Run the following command to destroy the CDK application and all infrastructure components which destroys the EC2 instance which acts as the AWS IoT Core Greengrass Core device, EC2 related resources such as VPC, Security Groups etc, along with the AWS S3 Greengrass components bucket & the AWS IAM roles and permissions necessary to provide access to AWS services to talk to one another.
+
+```unix
+cdk destroy --all
+```
+
+Please note the custom components stored in the AWS S3 buckets will not be auto deleted by destroying the CDK stacks and must be deleted manually. Similarly, the components deployments must be manually `cancelled` manually to stop from AWS Iot Core service page -> Greengrass devices -> Deployments -> NoderedDeployment and click `Revise`.
+
+---
+
+## Notices
+
+See [CONTRIBUTING]('./CONTRIBUTING.md) for more information. This library is licensed under the MIT-0 License. See the [LICENSE]('./LICENSE) file.
