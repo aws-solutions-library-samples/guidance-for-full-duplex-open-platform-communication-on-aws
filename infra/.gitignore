@@ -7,3 +7,7 @@ node_modules
 .cdk.staging
 cdk.out
 cdk.context.json
+
+# vscode settings 
+*.vscode
+*.DS_Store
